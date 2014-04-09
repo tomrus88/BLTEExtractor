@@ -31,9 +31,11 @@ namespace BLTEExtractor
 
             Dictionary<string, List<string>> hashes = new Dictionary<string, List<string>>();
 
-            if (File.Exists(@"c:\Games\World of Warcraft Beta\listfiles\wow_beta4.md5"))
+            var listfile = @"c:\Games\World of Warcraft Beta\listfiles\wow_beta4.md5";
+
+            if (File.Exists(listfile))
             {
-                using (StreamReader sr = new StreamReader(@"c:\Games\World of Warcraft Beta\listfiles\wow_beta3.md5"))
+                using (StreamReader sr = new StreamReader(listfile))
                 {
                     string line;
 
@@ -104,7 +106,7 @@ namespace BLTEExtractor
 
                         File.Move(h.Name, name);
 
-                        logger.WriteLine("{0} {1:X8} {2} {3}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5);
+                        logger.WriteLine("{0} {1:X8} {2} {3} {4}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5);
 
                         if (hashes.ContainsKey(md5.ToLower()))
                         {
@@ -130,7 +132,6 @@ namespace BLTEExtractor
 
             logger.Flush();
             logger.Close();
-
         }
     }
 
