@@ -4,6 +4,7 @@ using System.Text;
 
 namespace BLTEExtractor
 {
+    // Implementation of Bob Jenkins' hash function in C# (96 bit internal state)
     public class Jenkins96 : HashAlgorithm
     {
         uint a, b, c;

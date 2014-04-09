@@ -57,7 +57,7 @@ namespace BLTEExtractor
             if (!Directory.Exists(args[1] + "\\unnamed"))
                 Directory.CreateDirectory(args[1] + "\\unnamed");
 
-            StreamWriter logger = new StreamWriter("log.txt");
+            StreamWriter logger = new StreamWriter("log.txt", true);
 
             using (var file = new FileStream(args[0], FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var br = new BinaryReader(file, Encoding.ASCII))
@@ -104,7 +104,7 @@ namespace BLTEExtractor
 
                         File.Move(h.Name, name);
 
-                        logger.WriteLine("{0} {1:D8} {2} {3}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5);
+                        logger.WriteLine("{0} {1:X8} {2} {3}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5);
 
                         if (hashes.ContainsKey(md5.ToLower()))
                         {
