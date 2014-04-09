@@ -54,13 +54,9 @@ namespace BLTEExtractor
         {
             byte[] data = array;
 
-            uint pc = 0;
-            uint pb = 0;
-
             int length = data.Length;
-            a = b = c = 0xdeadbeef + (uint)length + (uint)*&pc;
-            //a = b = c = (uint)length + (uint)*&pc - 0x21524111;
-            c += *&pb;
+            a = b = c = 0xdeadbeef + (uint)length;
+            //a = b = c = (uint)length - 0x21524111;
 
             fixed (byte* bb = data)
             {
@@ -94,13 +90,14 @@ namespace BLTEExtractor
                         case 3: a += k[0] & 0xffffff; break;
                         case 2: a += k[0] & 0xffff; break;
                         case 1: a += k[0] & 0xff; break;
-                        case 0: pc = c; pb = b; hash = BitConverter.GetBytes(((ulong)pc << 32) | (ulong)pb); return;
+                        case 0:
+                            hash = BitConverter.GetBytes(((ulong)c << 32) | (ulong)c);
+                            return;
                     }
                 }
                 else if ((*u & 0x1) == 0)
                 {
                     ushort* k = (ushort*)u;
-                    byte* k8;
 
                     while (length > 12)
                     {
@@ -112,7 +109,7 @@ namespace BLTEExtractor
                         k += 6;
                     }
 
-                    k8 = (byte*)k;
+                    byte* k8 = (byte*)k;
 
                     switch (length)
                     {
@@ -164,7 +161,9 @@ namespace BLTEExtractor
                         case 1:
                             a += k8[0];
                             break;
-                        case 0: pc = c; pb = b; hash = BitConverter.GetBytes(((ulong)pc << 32) | (ulong)pb); return;
+                        case 0:
+                            hash = BitConverter.GetBytes(((ulong)c << 32) | (ulong)b);
+                            return;
                     }
                 }
                 else
@@ -240,13 +239,14 @@ namespace BLTEExtractor
                         case 1:
                             a += k[0];
                             break;
-                        case 0: pc = c; pb = b; hash = BitConverter.GetBytes(((ulong)pc << 32) | (ulong)pb); return;
+                        case 0:
+                            hash = BitConverter.GetBytes(((ulong)c << 32) | (ulong)b);
+                            return;
                     }
                 }
 
                 Final();
-                pc = c; pb = b;
-                hash = BitConverter.GetBytes(((ulong)pc << 32) | (ulong)pb);
+                hash = BitConverter.GetBytes(((ulong)c << 32) | (ulong)b);
             }
         }
 
