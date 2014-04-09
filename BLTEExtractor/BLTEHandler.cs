@@ -5,6 +5,11 @@ using System.Security.Cryptography;
 
 namespace BLTEExtractor
 {
+    class FileExistsException : Exception
+    {
+        public FileExistsException(string message) : base(message) { }
+    }
+
     class BLTEChunk
     {
         public int compSize;
@@ -229,18 +234,21 @@ namespace BLTEExtractor
                 }
             }
 
-            if (ext != "txt")
-            {
-                if (!Directory.Exists(path + "\\" + ext))
-                    Directory.CreateDirectory(path + "\\" + ext);
+            //if (ext != "txt")
+            //{
+            //    if (!Directory.Exists(path + "\\" + ext))
+            //        Directory.CreateDirectory(path + "\\" + ext);
 
-                saveName = path + "\\" + ext + "\\" + name + "." + ext;
-            }
-            else
-                saveName = path + "\\" + name + "." + ext;
+            //    saveName = path + "\\" + ext + "\\" + name + "." + ext;
+            //}
+            //else
+
+            saveName = path + "\\" + "unnamed\\" + name + "." + ext;
 
             if (!File.Exists(saveName))
                 File.Move(path + "\\" + name, saveName);
+            else
+                throw new FileExistsException(saveName);
         }
 
         private byte[] Decompress(int size, byte[] data)
