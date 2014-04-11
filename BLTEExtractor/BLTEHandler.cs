@@ -189,7 +189,7 @@ namespace BLTEExtractor
 
                         byte[] hh = md5.ComputeHash(chunks[i].data);
 
-                        Console.WriteLine("chunk hash: {0}", chunks[i].hash.ToHexString());
+                        //Console.WriteLine("chunk hash: {0}", chunks[i].hash.ToHexString());
 
                         if (!hh.VerifyHash(chunks[i].hash))
                         {

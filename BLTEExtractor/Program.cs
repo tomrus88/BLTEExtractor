@@ -14,10 +14,15 @@ namespace BLTEExtractor
             //1C F6 F2 36 6E 1F CB CE
             //SOUND\Creature\DraenorWolf\FX_FW_WolfHowl_Wet_05.OGG
             //43 4E C2 80 8A 82 EB 1C
+            //Fonts\2002B.ttf
+            //4B 8B F9 4C EC 73 B4 04
+            //FONTS\ARHEI.TTF
+            //C9 15 78 4E 97 AC B6 CD
             var hasher = new Jenkins96();
-            var hash1 = hasher.ComputeHash("SOUND\\Creature\\DraenorWolf\\FX_FW_WolfHowl_Wet_01.OGG");
-            var hash2 = hasher.ComputeHash("SOUND\\Creature\\DraenorWolf\\FX_FW_WolfHowl_Wet_05.OGG");
-
+            //var hash1 = hasher.ComputeHash("SOUND\\Creature\\DraenorWolf\\FX_FW_WolfHowl_Wet_01.OGG");
+            //var hash2 = hasher.ComputeHash("SOUND\\Creature\\DraenorWolf\\FX_FW_WolfHowl_Wet_05.OGG");
+            var hash3 = hasher.ComputeHash("Fonts\\2002B.ttf");
+            var hash4 = hasher.ComputeHash("FONTS\\ARHEI.TTF");
             //new MNDXHandler(@"d:\heroes_out2\90C07A5A3E609FFA1007AF142F76794E.mndx");
             //return;
 
@@ -31,7 +36,7 @@ namespace BLTEExtractor
 
             Dictionary<string, List<string>> hashes = new Dictionary<string, List<string>>();
 
-            var listfile = @"c:\Games\World of Warcraft Beta\listfiles\wow_beta4.md5";
+            var listfile = @"c:\Games\World of Warcraft Beta\listfiles\wow_beta6.md5";
 
             if (File.Exists(listfile))
             {

@@ -38,8 +38,8 @@ namespace BLTEExtractor
 
         public ulong ComputeHash(string str)
         {
-            str = str.Replace('/', '\\').ToUpper();
-            byte[] data = Encoding.ASCII.GetBytes(str);
+            var tempstr = str.Replace('/', '\\').ToUpper();
+            byte[] data = Encoding.ASCII.GetBytes(tempstr);
             return BitConverter.ToUInt64(ComputeHash(data), 0);
         }
 
@@ -120,7 +120,7 @@ namespace BLTEExtractor
                             a += k[0] + (((uint)k[1]) << 16);
                             break;
                         case 11:
-                            c += k[4] + ((uint)k8[10]) << 16;
+                            c += k[4] + (((uint)k8[10]) << 16);
                             b += k[2] + (((uint)k[3]) << 16);
                             a += k[0] + (((uint)k[1]) << 16);
                             break;
@@ -139,7 +139,7 @@ namespace BLTEExtractor
                             a += k[0] + (((uint)k[1]) << 16);
                             break;
                         case 7:
-                            b += k[2] + ((uint)k8[6]) << 16;
+                            b += k[2] + (((uint)k8[6]) << 16);
                             a += k[0] + (((uint)k[1]) << 16);
                             break;
                         case 6:
@@ -154,7 +154,7 @@ namespace BLTEExtractor
                             a += k[0] + (((uint)k[1]) << 16);
                             break;
                         case 3:
-                            a += k[0] + ((uint)k8[2]) << 16;
+                            a += k[0] + (((uint)k8[2]) << 16);
                             break;
                         case 2:
                             a += k[0];
