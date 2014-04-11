@@ -53,13 +53,11 @@ namespace BLTEExtractor
 
         protected override unsafe void HashCore(byte[] array, int ibStart, int cbSize)
         {
-            byte[] data = array;
-
-            int length = data.Length;
+            int length = array.Length;
             a = b = c = 0xdeadbeef + (uint)length;
             //a = b = c = (uint)length - 0x21524111;
 
-            fixed (byte* bb = data)
+            fixed (byte* bb = array)
             {
                 uint* u = (uint*)bb;
 

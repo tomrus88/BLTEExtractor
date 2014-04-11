@@ -375,6 +375,8 @@ namespace BLTEExtractor
                 return "blob";
             else if (data[start + 0] == 0x52 && data[start + 1] == 0x56 && data[start + 2] == 0x58 && data[start + 3] == 0x54)
                 return "tex";
+            else if (data[start + 0] == 0x53 && data[start + 1] == 0x59 && data[start + 2] == 0x48 && data[start + 3] == 0x50)
+                return "phys";
             else if (data[start + 0] == 0x52 && data[start + 1] == 0x45 && data[start + 2] == 0x56 && data[start + 3] == 0x4D)
             {
                 if (data[start + 12] == 0x52 && data[start + 13] == 0x44 && data[start + 14] == 0x48 && data[start + 15] == 0x4D)
