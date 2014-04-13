@@ -42,6 +42,17 @@ namespace BLTEExtractor
             }
         }
 
+        public byte[] HashBytes
+        {
+            get
+            {
+                using (var f = File.OpenRead(saveName))
+                {
+                    return md5.ComputeHash(f);
+                }
+            }
+        }
+
         public BLTEHandler(BinaryReader br, bool raw, int size)
         {
             this.reader = br;

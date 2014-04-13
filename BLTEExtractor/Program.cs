@@ -10,86 +10,14 @@ namespace BLTEExtractor
     {
         static void Main(string[] args)
         {
-            var hasher = new Jenkins96();
-
-            Dictionary<ulong, string> names = new Dictionary<ulong, string>();
-
-            var namesList = @"c:\Games\World of Warcraft Beta\listfiles\listfile.txt";
-
-            if (File.Exists(namesList))
-            {
-                string[] lines = File.ReadAllLines(namesList);
-
-                foreach (var line in lines)
-                {
-                    ulong hash = hasher.ComputeHash(line);
-
-                    names[hash] = line;
-                }
-            }
-
-            Dictionary<string, List<string>> hashes = new Dictionary<string, List<string>>();
-
-            var rootFile = @"c:\Users\TOM_RUS\Documents\Visual Studio 2013\Projects\ListFileCreator\ListFileCreator\bin\2A7E73225A96EADCD5917D061A3AAE51_root.txt";
-
-            if (File.Exists(rootFile))
-            {
-                using (var fs = new FileStream(rootFile, FileMode.Open))
-                using (var sr = new BinaryReader(fs))
-                {
-                    int numUnnamed = 0;
-
-                    while (sr.BaseStream.Position < sr.BaseStream.Length)
-                    {
-                        uint count = sr.ReadUInt32();
-                        uint unk1 = sr.ReadUInt32();
-                        uint unk2 = sr.ReadUInt32();
-
-                        uint[] arr1 = new uint[count];
-
-                        for (var i = 0; i < count; ++i)
-                            arr1[i] = sr.ReadUInt32();
-
-                        for (var i = 0; i < count; ++i)
-                        {
-                            string md5 = sr.ReadBytes(16).ToHexString().ToLower();
-                            ulong hash = sr.ReadUInt64();
-
-                            if (!names.ContainsKey(hash))
-                            {
-                                numUnnamed++;
-                                Console.WriteLine("No name for hash: {0:X16}", hash);
-                                continue;
-                            }
-
-                            if (!hashes.ContainsKey(md5))
-                            {
-                                hashes[md5] = new List<string>();
-                                hashes[md5].Add(names[hash]);
-                            }
-                            else
-                                hashes[md5].Add(names[hash]);
-                        }
-                    }
-
-                    Console.WriteLine("We have {0} unnamed files!", numUnnamed);
-                }
-            }
-
-            //SOUND\Creature\DraenorWolf\FX_FW_WolfHowl_Wet_01.OGG
-            //1C F6 F2 36 6E 1F CB CE
-            //SOUND\Creature\DraenorWolf\FX_FW_WolfHowl_Wet_05.OGG
-            //43 4E C2 80 8A 82 EB 1C
-            //Fonts\2002B.ttf
-            //4B 8B F9 4C EC 73 B4 04
-            //FONTS\ARHEI.TTF
-            //C9 15 78 4E 97 AC B6 CD
-            //var hash1 = hasher.ComputeHash("SOUND\\Creature\\DraenorWolf\\FX_FW_WolfHowl_Wet_01.OGG");
-            //var hash2 = hasher.ComputeHash("SOUND\\Creature\\DraenorWolf\\FX_FW_WolfHowl_Wet_05.OGG");
-            //var hash3 = hasher.ComputeHash("Fonts\\2002B.ttf");
-            //var hash4 = hasher.ComputeHash("FONTS\\ARHEI.TTF");
             //new MNDXHandler(@"d:\heroes_out2\90C07A5A3E609FFA1007AF142F76794E.mndx");
             //return;
+
+            var namesList = @"c:\Games\World of Warcraft Beta\listfiles\finallist2.txt";
+
+            var rootFile = @"c:\Users\TOM_RUS\Documents\Visual Studio 2013\Projects\CASCNames\CASCNames\root";
+
+            RootHandler root = new RootHandler(namesList, rootFile);
 
             if (args.Length < 2 || !File.Exists(args[0]))
             {
@@ -104,11 +32,15 @@ namespace BLTEExtractor
 
             StreamWriter logger = new StreamWriter("log.txt", true);
 
-            using (var file = new FileStream(args[0], FileMode.Open, FileAccess.Read, FileShare.Read))
+            string dataFile = args[0];
+
+            using (var file = new FileStream(dataFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var br = new BinaryReader(file, Encoding.ASCII))
             {
                 while (br.BaseStream.Position != br.BaseStream.Length)
                 {
+                    long startPos = br.BaseStream.Position;
+
                     if (raw)
                     {
                         BLTEHandler h = new BLTEHandler(br, raw, 0);
@@ -143,22 +75,23 @@ namespace BLTEExtractor
                             logger.WriteLine("{0} already exists! (0)", e.Message);
                         }
 
-                        var md5 = h.Hash;
+                        var md5 = h.HashBytes;
+                        var md5String = md5.ToHexString();
 
-                        var name = Path.GetDirectoryName(h.Name) + "\\" + md5 + Path.GetExtension(h.Name);
+                        var name = Path.GetDirectoryName(h.Name) + "\\" + md5String + Path.GetExtension(h.Name);
 
                         File.Move(h.Name, name);
 
-                        logger.WriteLine("{0} {1:X8} {2} {3} {4}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5);
+                        logger.WriteLine("{6} {5:X8} {0} {1:X8} {2} {3} {4}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5String, startPos, Path.GetFileName(dataFile));
 
-                        if (hashes.ContainsKey(md5.ToLower()))
+                        var nn = root.GetNamesForMD5(md5);
+
+                        if (nn != null)
                         {
-                            var nn = hashes[md5.ToLower()];
-
                             if (nn.Count == 0)
                             {
-                                Console.WriteLine("No name for {0}", md5);
-                                logger.WriteLine("No name for {0}", md5);
+                                Console.WriteLine("No name for {0}", md5String);
+                                logger.WriteLine("No name for {0}", md5String);
                             }
 
                             foreach (var n in nn)
@@ -186,7 +119,8 @@ namespace BLTEExtractor
                                     if (!Directory.Exists(dir2))
                                         Directory.CreateDirectory(dir2);
 
-                                    File.Copy(name, n3);
+                                    if (!File.Exists(n3))
+                                        File.Copy(name, n3);
                                 }
                             }
 
@@ -201,7 +135,7 @@ namespace BLTEExtractor
                             if (!Directory.Exists(dir))
                                 Directory.CreateDirectory(dir);
 
-                            var p1 = Path.Combine(dir, md5 + Path.GetExtension(h.Name));
+                            var p1 = Path.Combine(dir, md5String + Path.GetExtension(h.Name));
 
                             File.Move(name, p1);
                         }
