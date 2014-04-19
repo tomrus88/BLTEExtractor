@@ -13,9 +13,9 @@ namespace BLTEExtractor
             //new MNDXHandler(@"d:\heroes_out2\90C07A5A3E609FFA1007AF142F76794E.mndx");
             //return;
 
-            var namesList = @"c:\Games\World of Warcraft Beta\listfiles\finallist2.txt";
+            var namesList = @"_c:\Games\World of Warcraft Beta\listfiles\finallist2.txt";
 
-            var rootFile = @"c:\Users\TOM_RUS\Documents\Visual Studio 2013\Projects\CASCNames\CASCNames\root";
+            var rootFile = @"_c:\Users\TOM_RUS\Documents\Visual Studio 2013\Projects\CASCNames\CASCNames\root";
 
             RootHandler root = new RootHandler(namesList, rootFile);
 
@@ -78,27 +78,20 @@ namespace BLTEExtractor
                         var md5 = h.HashBytes;
                         var md5String = md5.ToHexString();
 
-                        var name = Path.GetDirectoryName(h.Name) + "\\" + md5String + Path.GetExtension(h.Name);
-
-                        File.Move(h.Name, name);
-
                         logger.WriteLine("{6} {5:X8} {0} {1:X8} {2} {3} {4}", unkHash.ToHexString(), size, unkData1.ToHexString(), unkData2.ToHexString(), md5String, startPos, Path.GetFileName(dataFile));
 
                         var nn = root.GetNamesForMD5(md5);
 
                         if (nn != null)
                         {
-                            if (nn.Count == 0)
-                            {
-                                Console.WriteLine("No name for {0}", md5String);
-                                logger.WriteLine("No name for {0}", md5String);
-                            }
-
                             foreach (var n in nn)
                             {
                                 logger.WriteLine("{0}", n);
 
                                 var n2 = Path.Combine(args[1], n);
+
+                                if (n.StartsWith("unnamed\\"))
+                                    n2 += Path.GetExtension(h.Name);
 
                                 var dir = Path.GetDirectoryName(n2);
 
@@ -106,13 +99,16 @@ namespace BLTEExtractor
                                     Directory.CreateDirectory(dir);
 
                                 if (!File.Exists(n2))
-                                    File.Copy(name, n2);
+                                    File.Copy(h.Name, n2);
                                 else
                                 {
-                                    Console.WriteLine("File {0} ({1}) already exists! (1)", name, n);
-                                    logger.WriteLine("File {0} ({1}) already exists! (1)", name, n);
+                                    Console.WriteLine("File {0} ({1}) already exists! (1)", n2, n);
+                                    logger.WriteLine("File {0} ({1}) already exists! (1)", n2, n);
 
                                     var n3 = Path.Combine(args[1], "name_collision\\", n);
+
+                                    if (n.StartsWith("unnamed\\"))
+                                        n3 += Path.GetExtension(h.Name);
 
                                     var dir2 = Path.GetDirectoryName(n3);
 
@@ -120,15 +116,26 @@ namespace BLTEExtractor
                                         Directory.CreateDirectory(dir2);
 
                                     if (!File.Exists(n3))
-                                        File.Copy(name, n3);
+                                        File.Copy(h.Name, n3);
+                                    else
+                                    {
+                                        for (int i = 0; i < 100000; ++i)
+                                        {
+                                            if (!File.Exists(n3 + "_" + i))
+                                            {
+                                                File.Copy(h.Name, n3 + "_" + i);
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
 
-                            File.Delete(name);
+                            File.Delete(h.Name);
                         }
                         else
                         {
-                            logger.WriteLine("Found a file that isn't present in root file: {0}", name);
+                            logger.WriteLine("Found a file that isn't present in root file: {0}", md5String + Path.GetExtension(h.Name));
 
                             var dir = Path.Combine(args[1], "unreferenced\\");
 
@@ -137,7 +144,10 @@ namespace BLTEExtractor
 
                             var p1 = Path.Combine(dir, md5String + Path.GetExtension(h.Name));
 
-                            File.Move(name, p1);
+                            if (!File.Exists(p1))
+                                File.Move(h.Name, p1);
+                            else
+                                File.Delete(h.Name);
                         }
                     }
                 }
